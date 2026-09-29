@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>dream restaurant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Mrs+Saint+Delafield&family=Shippori+Mincho:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+/* Layout: desktop = one photographic "stage" (1024:1536) with copy placed as in the comp; phone = stacked photo sections */
+:root{
+  --ink:#120d09;          /* page ground */
+  --paper:#f6efe6;        /* primary text */
+  --paper-dim:rgba(246,239,230,.86);
+  --line:rgba(246,239,230,.72);
+  --gold:#e2c29a;         /* script accents */
+  --wine:#7a1f26;         /* reservation button */
+  --wine-hi:#8f2a31;
+  --f-jp:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+  --f-latin:"Cormorant Garamond","Times New Roman",serif;
+  --f-script:"Mrs Saint Delafield","Snell Roundhand","Segoe Script",cursive;
+  color-scheme:dark;
+}
+:root{padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--ink);color:var(--paper);font-family:var(--f-jp);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:1px solid var(--gold);outline-offset:4px}
+svg.ic{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- shared pieces ---------- */
+.script{font-family:var(--f-script);color:var(--gold);font-weight:400;line-height:1;white-space:nowrap;position:absolute;pointer-events:none;letter-spacing:.01em}
+.btn{display:inline-flex;align-items:center;justify-content:space-between;gap:1.2em;border:1px solid var(--line);color:var(--paper);letter-spacing:.14em;transition:background .35s,border-color .35s}
+.btn .arrow{font-family:var(--f-latin);letter-spacing:0}
+.btn:hover{background:rgba(246,239,230,.12);border-color:var(--paper)}
+.eyebrow{font-family:var(--f-latin);letter-spacing:.24em;text-transform:uppercase}
+
+/* ---------- header ---------- */
+.logo{display:flex;flex-direction:column;align-items:center;line-height:1}
+.logo b{font-family:var(--f-latin);font-weight:500;letter-spacing:.01em}
+.logo small{font-family:var(--f-latin);letter-spacing:.32em;text-transform:uppercase}
+.gnav{display:flex;align-items:flex-start}
+.gnav a{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+.gnav a .en{font-family:var(--f-latin);letter-spacing:.08em}
+.gnav a .jp{letter-spacing:.1em;opacity:.85}
+.gnav a::after{content:"";position:absolute;left:50%;right:50%;bottom:-.7em;height:1px;background:var(--gold);transition:left .3s,right .3s}
+.gnav a:hover::after{left:15%;right:15%}
+
+/* sticky compact header shown after scrolling */
+.bar{position:fixed;top:0;left:0;right:0;z-index:40;padding:calc(env(safe-area-inset-top,0px) + 10px) 24px 10px;display:flex;align-items:center;justify-content:space-between;gap:24px;
+  background:rgba(18,13,9,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(246,239,230,.08);
+  transform:translateY(-110%);transition:transform .45s ease}
+.bar.on{transform:none}
+.bar .logo b{font-size:22px}
+.bar .logo small{font-size:7.5px;margin-top:5px}
+.bar .gnav{gap:30px}
+.bar .gnav .en{font-size:12px}
+.bar .gnav .jp{font-size:9px;margin-top:4px}
+.bar .btn{font-size:12px;padding:10px 16px}
+.menu-btn{display:none;background:none;border:1px solid var(--line);color:var(--paper);width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer}
+.menu-btn span{display:block;width:18px;height:1px;background:currentColor;box-shadow:0 -6px 0 currentColor,0 6px 0 currentColor}
+
+.drawer{position:fixed;inset:0;z-index:50;background:rgba(18,13,9,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:24px}
+[hidden]{display:none!important}
+.drawer a.item{display:flex;flex-direction:column;align-items:center;gap:6px}
+.drawer .en{font-family:var(--f-latin);font-size:20px;letter-spacing:.14em}
+.drawer .jp{font-size:11px;letter-spacing:.12em;opacity:.8}
+.drawer .close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:18px;background:none;border:0;color:var(--paper);font-family:var(--f-latin);font-size:34px;line-height:1;cursor:pointer;width:44px;height:44px}
+.drawer .btn{font-size:13px;padding:14px 20px;margin-top:10px}
+
+/* ========== DESKTOP: stage reproduction (≥900px) ========== */
+@media (min-width:900px){
+  .stage{position:relative;width:100%;aspect-ratio:1024/1536;background:#1a120c url(img/stage.jpg) center top/100% 100% no-repeat;container-type:inline-size;overflow:hidden}
+  .blk{display:contents}
+  .stage > .blk > *, .stage > header > *, .p{position:absolute;margin:0}
+  /* all coordinates from the 1024 × 1536 comp: left = px/10.24 %, top = px/15.36 % ; type in cqw = px/10.24 */
+  .top-logo{left:6.2%;top:1.05%}
+  .top-logo b{font-size:2.85cqw}
+  .top-logo small{font-size:.82cqw;margin-top:.55cqw}
+  .top-nav{left:35.3%;top:1.3%;width:39.2cqw;justify-content:space-between}
+  .top-nav .en{font-size:1.1cqw}
+  .top-nav .jp{font-size:.82cqw;margin-top:.55cqw}
+  .top-cta{left:77.55%;top:.85%;width:20.1cqw;height:4.1cqw;font-size:1.17cqw;padding:0 1.6cqw 0 1.9cqw}
+
+  .hero-h{left:6.4%;top:8.35%;font-size:4.02cqw;font-weight:400;line-height:1.42;letter-spacing:.09em;text-shadow:0 2px 18px rgba(0,0,0,.45)}
+  .hero-swash{left:6.2%;top:16.5%;width:32.8cqw;height:auto;color:var(--gold)}
+  .hero-p{left:6.6%;top:19.1%;font-size:1.64cqw;line-height:1.78;letter-spacing:.1em;color:var(--paper-dim)}
+  .hero-tag{left:6.6%;top:26.6%;font-size:1.06cqw;line-height:1.6;color:var(--paper-dim)}
+  .sc-italian{left:81.5%;top:18.2%;font-size:5.6cqw;line-height:.95;transform:rotate(-24deg);transform-origin:left top;color:rgba(226,194,154,.85)}
+  .sc-italian span{display:block;margin-left:3.2cqw}
+
+  .sc-lunch{left:5.2%;top:30.9%;font-size:7cqw;transform:rotate(-18deg);transform-origin:left top}
+  .lunch-h{left:11.75%;top:34.25%;font-size:2.5cqw;font-weight:500;line-height:1.42;letter-spacing:.12em}
+  .lunch-p{left:11.75%;top:39.2%;font-size:1.2cqw;line-height:1.85;letter-spacing:.09em;color:var(--paper-dim)}
+  .lunch-b{left:13%;top:45%;width:20.2cqw;height:3.15cqw;font-size:1.03cqw;padding:0 1.6cqw 0 2cqw}
+
+  .sc-course{left:3.8%;top:48%;font-size:6.8cqw;transform:rotate(-18deg);transform-origin:left top}
+  .course-h{left:12.1%;top:50.5%;font-size:2.5cqw;font-weight:500;line-height:1.48;letter-spacing:.12em}
+  .course-p{left:12.1%;top:55.4%;font-size:1.2cqw;line-height:1.85;letter-spacing:.09em;color:var(--paper-dim)}
+  .course-b{left:12%;top:60.2%;width:21.1cqw;height:3.2cqw;font-size:1.03cqw;padding:0 1.6cqw 0 2cqw}
+
+  .sc-anniv{left:51.2%;top:63.9%;font-size:5.1cqw;transform:rotate(-20deg);transform-origin:left top}
+  .anniv-h{left:59.6%;top:65.4%;font-size:2.44cqw;font-weight:500;letter-spacing:.14em;line-height:1.3}
+  .anniv-p{left:59.6%;top:68.2%;font-size:1.2cqw;line-height:1.88;letter-spacing:.09em;color:var(--paper-dim)}
+  .anniv-b{left:59.7%;top:72.95%;width:24.2cqw;height:3.15cqw;font-size:1.03cqw;padding:0 1.6cqw 0 2cqw}
+
+  .sc-special{left:4.6%;top:75.2%;font-size:5.4cqw;line-height:1;transform:rotate(-20deg);transform-origin:left top}
+  .sc-special span{display:block;margin-left:5.2cqw;margin-top:-.4cqw}
+
+  .acc{left:7.3%;top:83.6%;width:34cqw}
+  .acc .eyebrow{font-size:1.15cqw;letter-spacing:.14em}
+  .acc h2{font-size:1.9cqw;font-weight:500;letter-spacing:.18em;margin:.5cqw 0 1.45cqw}
+  .acc ul{gap:1.1cqw;font-size:1.22cqw}
+  .acc li{gap:1.5cqw;line-height:1.55}
+  .acc li svg{font-size:2.2cqw;margin-top:-.15cqw}
+
+  .sc-soon{left:74.4%;top:85.6%;font-size:4.3cqw;transform:rotate(-11deg);transform-origin:left top}
+  .cta-web{left:69.95%;top:89.3%;width:25.3cqw;height:4.9cqw;font-size:1.4cqw}
+  .cta-tel{left:69.95%;top:93.2%;width:25.3cqw;height:4.9cqw;font-size:1.14cqw}
+  .cta{padding:0 2.2cqw}
+  .cta svg{font-size:2.6cqw}
+
+  .foot{position:absolute;left:0;right:0;bottom:.7%;text-align:center;font-family:var(--f-latin);font-size:.9cqw;letter-spacing:.2em;color:rgba(246,239,230,.5)}
+  .m-only{display:none!important}
+}
+
+/* ---------- access & CTA shared ---------- */
+.acc ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+.acc li{display:flex;align-items:flex-start;letter-spacing:.08em}
+.acc li .sub{display:block}
+.cta{display:flex;align-items:center;justify-content:space-between;color:var(--paper);letter-spacing:.12em;transition:background .35s,border-color .35s}
+.cta .label{flex:1;text-align:center}
+.cta .arrow{font-family:var(--f-latin);letter-spacing:0}
+.cta-web{background:var(--wine);border:1px solid rgba(246,239,230,.35);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.cta-web:hover{background:var(--wine-hi)}
+.cta-tel{border:1px solid var(--line);background:rgba(18,13,9,.35)}
+.cta-tel:hover{background:rgba(246,239,230,.12)}
+
+/* entrance: content is visible at rest; animation only nudges it in */
+@keyframes rise{from{opacity:.001;translate:0 14px}to{opacity:1;translate:0 0}}
+.hero-h,.hero-p,.hero-tag,.hero-swash{animation:rise 1.2s cubic-bezier(.2,.7,.2,1) both}
+.hero-swash{animation-delay:.25s}.hero-p{animation-delay:.35s}.hero-tag{animation-delay:.5s}
+
+/* ========== PHONE / TABLET: stacked sections (<900px) ========== */
+@media (max-width:899.98px){
+  .bar{transform:none;padding-inline:16px;background:rgba(18,13,9,.55)}
+  .bar.on{background:rgba(18,13,9,.88)}
+  .bar .gnav,.bar .btn{display:none}
+  .menu-btn{display:inline-flex}
+  .bar .logo b{font-size:20px}
+  .top-header{display:none}
+  .stage{background:var(--ink)}
+  .blk{position:relative;display:flex;flex-direction:column;align-items:flex-start;padding:84px 24px 64px;background-size:cover;background-position:center;isolation:isolate;overflow:hidden}
+  .blk::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(18,13,9,.35) 0%,rgba(18,13,9,.72) 55%,rgba(18,13,9,.92) 100%)}
+  .blk-hero{min-height:560px;justify-content:flex-end;background-image:url(img/m-hero.jpg);padding-top:120px}
+  .blk-hero::before{background:linear-gradient(90deg,rgba(18,13,9,.85) 0%,rgba(18,13,9,.45) 70%,rgba(18,13,9,.2)),linear-gradient(0deg,rgba(18,13,9,.9) 0%,transparent 45%)}
+  .blk-lunch{background-image:url(img/m-food.jpg);background-position:30% center}
+  .blk-course{background-image:url(img/m-food.jpg);background-position:85% 80%}
+  .blk-anniv{background-image:url(img/m-anniv.jpg);background-position:25% center}
+  .blk-access{background-image:url(img/m-access.jpg);padding-bottom:48px}
+  .script{position:static;font-size:52px;margin:0 0 -10px -4px;transform:rotate(-8deg);transform-origin:left bottom}
+  .sc-italian,.sc-special{display:none}
+  .hero-h{font-size:clamp(30px,8.4vw,44px);font-weight:400;line-height:1.45;letter-spacing:.08em;margin:0}
+  .hero-swash{width:min(300px,78vw);color:var(--gold);margin:8px 0 18px}
+  .hero-p{font-size:15px;line-height:1.95;letter-spacing:.08em;margin:0;color:var(--paper-dim)}
+  .hero-tag{font-size:11px;line-height:1.7;margin:22px 0 0;color:var(--paper-dim)}
+  .lunch-h,.course-h,.anniv-h{font-size:clamp(22px,6.4vw,28px);font-weight:500;line-height:1.5;letter-spacing:.12em;margin:14px 0 14px}
+  .lunch-p,.course-p,.anniv-p{font-size:14px;line-height:1.95;letter-spacing:.06em;margin:0 0 26px;color:var(--paper-dim);max-width:34em}
+  .blk .btn{font-size:13px;padding:13px 20px;min-width:240px}
+  .acc{width:100%}
+  .acc .eyebrow{font-size:13px;letter-spacing:.16em}
+  .acc h2{font-size:22px;font-weight:500;letter-spacing:.18em;margin:6px 0 22px}
+  .acc ul{gap:16px;font-size:14px}
+  .acc li{gap:14px;line-height:1.6}
+  .acc li svg{font-size:20px;margin-top:2px}
+  .sc-soon{margin:44px 0 6px;font-size:46px}
+  .cta{width:100%;max-width:420px;min-height:58px;padding:0 20px;font-size:14px;margin-top:12px}
+  .cta svg{font-size:22px}
+  .foot{padding:28px 16px calc(env(safe-area-inset-bottom,0px) + 28px);text-align:center;font-family:var(--f-latin);font-size:12px;letter-spacing:.2em;color:rgba(246,239,230,.5);background:var(--ink)}
+  .d-only{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- compact sticky header -->
+<div class="bar" id="bar">
+  <a class="logo" href="#top" aria-label="dream restaurant トップへ"><b>dream restaurant</b><small>Italian Restaurant</small></a>
+  <nav class="gnav" aria-label="グローバルナビ">
+    <a href="#concept"><span class="en">CONCEPT</span><span class="jp">コンセプト</span></a>
+    <a href="#lunch"><span class="en">LUNCH</span><span class="jp">ランチ</span></a>
+    <a href="#course"><span class="en">COURSE</span><span class="jp">コース料理</span></a>
+    <a href="#anniversary"><span class="en">ANNIVERSARY</span><span class="jp">記念日・デート</span></a>
+    <a href="#access"><span class="en">ACCESS</span><span class="jp">アクセス</span></a>
+  </nav>
+  <a class="btn" href="#reserve">ご予約・お問い合わせ <span class="arrow">→</span></a>
+  <button class="menu-btn" id="menuOpen" type="button" aria-label="メニューを開く" aria-controls="drawer" aria-expanded="false"><span></span></button>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <button class="close" id="menuClose" type="button" aria-label="メニューを閉じる">×</button>
+  <a class="item" href="#concept"><span class="en">CONCEPT</span><span class="jp">コンセプト</span></a>
+  <a class="item" href="#lunch"><span class="en">LUNCH</span><span class="jp">ランチ</span></a>
+  <a class="item" href="#course"><span class="en">COURSE</span><span class="jp">コース料理</span></a>
+  <a class="item" href="#anniversary"><span class="en">ANNIVERSARY</span><span class="jp">記念日・デート</span></a>
+  <a class="item" href="#access"><span class="en">ACCESS</span><span class="jp">アクセス</span></a>
+  <a class="btn" href="#reserve">ご予約・お問い合わせ <span class="arrow">→</span></a>
+</div>
+
+<main class="stage" id="top">
+  <!-- header as drawn in the comp -->
+  <header class="top-header">
+    <a class="logo top-logo" href="#top"><b>dream restaurant</b><small>Italian Restaurant</small></a>
+    <nav class="gnav top-nav" aria-label="メインメニュー">
+      <a href="#concept"><span class="en">CONCEPT</span><span class="jp">コンセプト</span></a>
+      <a href="#lunch"><span class="en">LUNCH</span><span class="jp">ランチ</span></a>
+      <a href="#course"><span class="en">COURSE</span><span class="jp">コース料理</span></a>
+      <a href="#anniversary"><span class="en">ANNIVERSARY</span><span class="jp">記念日・デート</span></a>
+      <a href="#access"><span class="en">ACCESS</span><span class="jp">アクセス</span></a>
+    </nav>
+    <a class="btn top-cta" href="#reserve">ご予約・お問い合わせ <span class="arrow">→</span></a>
+  </header>
+
+  <!-- HERO / CONCEPT -->
+  <section class="blk blk-hero" id="concept">
+    <h1 class="hero-h">日常を、<br>特別なひとときに。</h1>
+    <svg class="hero-swash" viewBox="0 0 330 30" aria-hidden="true"><path d="M2 26 C 70 22, 150 14, 230 9 S 310 3, 328 2" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M40 27 C 120 21, 210 12, 300 6" fill="none" stroke="currentColor" stroke-width=".5" stroke-linecap="round" opacity=".6"/></svg>
+    <p class="hero-p">旬の食材を使った本格イタリアンで、<br>大切な人と過ごす時間が、<br>少し特別になる場所。</p>
+    <p class="hero-tag eyebrow">Good food,<br>better moments。</p>
+    <p class="script sc-italian" aria-hidden="true">Italian<span>Cuisine</span></p>
+  </section>
+
+  <!-- LUNCH -->
+  <section class="blk blk-lunch" id="lunch">
+    <p class="script sc-lunch" aria-hidden="true">Lunch</p>
+    <h2 class="lunch-h">彩り豊かな<br>ランチメニュー</h2>
+    <p class="lunch-p">季節の食材を使った前菜・パスタ・メインなど、<br class="d-only">気軽に楽しめる本格イタリアンランチ。<br>ゆったりとした時間の中で、<br class="d-only">ちょっと贅沢なひとときを。</p>
+    <a class="btn lunch-b" href="#lunch">ランチメニューを見る <span class="arrow">→</span></a>
+  </section>
+
+  <!-- COURSE -->
+  <section class="blk blk-course" id="course">
+    <p class="script sc-course" aria-hidden="true">Course</p>
+    <h2 class="course-h">シェフこだわりの<br>コース料理</h2>
+    <p class="course-p">旬の食材を使用し、前菜からデザートまで<br class="d-only">一皿一皿丁寧に仕上げたコース料理。<br>大切な方とのお食事におすすめです。</p>
+    <a class="btn course-b" href="#course">コース料理を見る <span class="arrow">→</span></a>
+  </section>
+
+  <!-- ANNIVERSARY -->
+  <section class="blk blk-anniv" id="anniversary">
+    <p class="script sc-anniv" aria-hidden="true">Anniversary</p>
+    <h2 class="anniv-h">記念日・デートに</h2>
+    <p class="anniv-p">誕生日や記念日など、特別な一日を彩る<br class="d-only">アニバーサリープランをご用意しています。<br>大切な方と、心に残る時間をお過ごしください。</p>
+    <a class="btn anniv-b" href="#anniversary">アニバーサリープランを見る <span class="arrow">→</span></a>
+    <p class="script sc-special" aria-hidden="true">Special<span>Moment</span></p>
+  </section>
+
+  <!-- ACCESS + RESERVE -->
+  <section class="blk blk-access" id="access">
+    <div class="acc">
+      <p class="eyebrow" style="margin:0">Access</p>
+      <h2>アクセス</h2>
+      <ul>
+        <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11.2A6.5 6.5 0 0 1 18.5 9.8C18.5 14.8 12 21 12 21z" fill="currentColor" stroke="none"/><circle cx="12" cy="9.8" r="2.4" fill="#120d09" stroke="none"/></svg><span>〒000-0000<span class="sub">宮城県仙台市〇〇区〇〇1-2-3　<span style="white-space:nowrap">dreamビル1F</span></span></span></li>
+        <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>営業時間 11:00 - 21:00<span class="sub">（ラストオーダー 20:30）</span></span></li>
+        <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="1.5"/><path d="M4 10h16M8 3.5v4M16 3.5v4M8 13.5h2M14 13.5h2M8 16.5h2"/></svg><span>定休日　水曜日</span></li>
+        <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="3.5" width="13" height="14" rx="3" fill="currentColor" stroke="none"/><rect x="7.5" y="6" width="9" height="5" rx="1" fill="#120d09" stroke="none"/><circle cx="8.8" cy="14.3" r="1.1" fill="#120d09" stroke="none"/><circle cx="15.2" cy="14.3" r="1.1" fill="#120d09" stroke="none"/><path d="M8 18l-2 3M16 18l2 3"/></svg><span>〇〇駅から徒歩5分</span></li>
+      </ul>
+    </div>
+    <p class="script sc-soon" aria-hidden="true">See you soon.</p>
+    <a class="cta cta-web" id="reserve" href="#reserve">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="1.5"/><path d="M4 10h16M8 3.5v4M16 3.5v4M8 13.5h2M11 13.5h2M14 13.5h2M8 16.5h2M11 16.5h2"/></svg>
+      <span class="label">WEB予約はこちら</span><span class="arrow">→</span>
+    </a>
+    <a class="cta cta-tel" href="tel:000-0000-0000">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.6l1.5 4-2 1.3a11 11 0 0 0 6.5 6.5l1.3-2 4 1.5v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z" fill="currentColor" stroke="none"/></svg>
+      <span class="label">お電話でのお問い合わせ</span><span class="arrow">→</span>
+    </a>
+  </section>
+
+  <p class="foot">© dream restaurant</p>
+</main>
+
+<script>
+(function(){
+  var bar=document.getElementById('bar');
+  function onScroll(){bar.classList.toggle('on',window.scrollY>140)}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  var d=document.getElementById('drawer'),o=document.getElementById('menuOpen'),c=document.getElementById('menuClose');
+  function setMenu(open){d.hidden=!open;o.setAttribute('aria-expanded',String(open));document.documentElement.style.overflow=open?'hidden':'';if(open)c.focus()}
+  o.addEventListener('click',function(){setMenu(true)});
+  c.addEventListener('click',function(){setMenu(false)});
+  d.addEventListener('click',function(e){if(e.target.closest('a'))setMenu(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!d.hidden)setMenu(false)});
+})();
+</script>
+
+</body>
+</html>
